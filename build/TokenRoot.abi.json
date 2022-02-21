@@ -1,0 +1,60 @@
+{
+	"ABI version": 2,
+	"version": "2.1",
+	"header": ["time", "expire"],
+	"functions": [
+		{
+			"name": "constructor",
+			"inputs": [
+				{"name":"owner","type":"address"},
+				{"name":"addrTransferTokenProxy","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "setConfiguration",
+			"inputs": [
+				{"name":"addrTransferTokenProxy","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "transferToken",
+			"inputs": [
+				{"name":"gasTo","type":"address"},
+				{"name":"collection_addr","type":"uint160"},
+				{"name":"token_id","type":"uint256"},
+				{"name":"wid","type":"int8"},
+				{"name":"owner_addr","type":"uint256"},
+				{"name":"metadata","type":"string"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "getInfo",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"owner","type":"address"},
+				{"name":"addrTransferTokenProxy","type":"address"},
+				{"components":[{"name":"sender_msg","type":"address"},{"name":"collection_addr","type":"uint160"},{"name":"token_id","type":"uint256"},{"name":"wid","type":"int8"},{"name":"owner_addr","type":"uint256"},{"name":"metadata","type":"string"}],"name":"_transferCallbacks","type":"map(uint128,tuple)"}
+			]
+		}
+	],
+	"data": [
+	],
+	"events": [
+	],
+	"fields": [
+		{"name":"_pubkey","type":"uint256"},
+		{"name":"_timestamp","type":"uint64"},
+		{"name":"_constructorFlag","type":"bool"},
+		{"name":"_owner","type":"address"},
+		{"name":"_addrTransferTokenProxy","type":"address"},
+		{"name":"_idCallback","type":"uint128"},
+		{"components":[{"name":"sender_msg","type":"address"},{"name":"collection_addr","type":"uint160"},{"name":"token_id","type":"uint256"},{"name":"wid","type":"int8"},{"name":"owner_addr","type":"uint256"},{"name":"metadata","type":"string"}],"name":"transferCallbacks","type":"map(uint128,tuple)"}
+	]
+}
