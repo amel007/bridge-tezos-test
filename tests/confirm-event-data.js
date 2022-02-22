@@ -66,11 +66,9 @@ async function main(client) {
   console.log("get event data info");
 
   const paramsEvent = {
-    collection_addr: 123,
-    token_id: 11,
-    wid: 1,
-    owner_addr: 123456,
-    metadata: 'string test'
+    wid: 0,
+    recipient: '0x'+'b6ad8175fd6870e93fe44908c01831269065f8890ad119c5917bad088e192c43',
+    amount: 100
   }
 
   response = await proxyAcc.runLocal("encodeTezosEventData", paramsEvent);
@@ -79,11 +77,10 @@ async function main(client) {
   const eventData = response.decoded.output.data;
 
   const eventVoteData = {
-    eventTransaction: 222,
-    eventIndex: 322,
+    eventID: 222,
+    eventBlockHash: 322,
     eventData: eventData,
-    eventBlockNumber: 20,
-    eventBlock: 111
+    eventTransactionHash: 20,
   };
 
   response = await tezosEventCOnfigurationAcc.runLocal("deriveEventAddress", {eventVoteData:eventVoteData, answerId:0});

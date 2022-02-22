@@ -44,14 +44,14 @@ contract TransferTokenProxy is ITransferTokenProxy, CellEncoder {
 
         tvm.rawReserve(address(this).balance - msg.value, 2);
         (
-            uint160 collection_addr,
-            uint256 token_id,
             int8 wid,
-            uint256 owner_addr,
-            string metadata
+            uint256 recipient,
+            uint128 amount
         ) = decodeTezosEventData(data);
 
-        ITokenRoot(_addrTokenRoot).transferToken{value: 0, flag: 128}(msg.sender, collection_addr, token_id, wid, owner_addr, metadata);
+        address addrRecipient = address.makeAddrStd(wid, recipient);
+
+        ITokenRoot(_addrTokenRoot).transferToken{value: 0, flag: 128}(msg.sender, addrRecipient, amount);
     }
 
     function getInfo() public view returns (

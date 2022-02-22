@@ -2,17 +2,15 @@ pragma ton-solidity >= 0.43.0;
 
 contract CellEncoder {
     function encodeTezosEventData(
-        uint160 collection_addr,
-        uint256 token_id,
         int8 wid,
-        uint256 owner_addr,
-        string metadata
+        uint256 recipient,
+        uint128 amount
     ) public pure returns(
         TvmCell data
     ) {
         TvmBuilder builder;
 
-        builder.store(collection_addr, token_id, wid, owner_addr, metadata);
+        builder.store(wid, recipient, amount);
 
         data = builder.toCell();
     }
@@ -20,19 +18,15 @@ contract CellEncoder {
     function decodeTezosEventData(
         TvmCell data
     ) public pure returns(
-        uint160 collection_addr,
-        uint256 token_id,
         int8 wid,
-        uint256 owner_addr,
-        string metadata
+        uint256 recipient,
+        uint128 amount
     ) {
         (
-            collection_addr,
-            token_id,
             wid,
-            owner_addr,
-            metadata
-        ) = data.toSlice().decode(uint160, uint256, int8, uint256, string);
+            recipient,
+            amount
+        ) = data.toSlice().decode(int8, uint256, uint128);
     }
 
 //    function encodeEverscaleEventData(

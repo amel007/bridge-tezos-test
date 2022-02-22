@@ -17,7 +17,7 @@
 				{"name":"answerId","type":"uint32"}
 			],
 			"outputs": [
-				{"components":[{"components":[{"name":"eventTransaction","type":"uint256"},{"name":"eventIndex","type":"uint32"},{"name":"eventData","type":"cell"},{"name":"eventBlockNumber","type":"uint32"},{"name":"eventBlock","type":"uint256"}],"name":"voteData","type":"tuple"},{"name":"configuration","type":"address"},{"name":"chainId","type":"uint32"},{"name":"bridge","type":"address"}],"name":"value0","type":"tuple"}
+				{"components":[{"components":[{"name":"eventID","type":"uint32"},{"name":"eventBlockHash","type":"uint256"},{"name":"eventData","type":"cell"},{"name":"eventTransactionHash","type":"uint256"}],"name":"voteData","type":"tuple"},{"name":"configuration","type":"address"},{"name":"chainId","type":"uint32"},{"name":"bridge","type":"address"}],"name":"value0","type":"tuple"}
 			]
 		},
 		{
@@ -40,7 +40,7 @@
 				{"name":"answerId","type":"uint32"}
 			],
 			"outputs": [
-				{"components":[{"components":[{"name":"eventTransaction","type":"uint256"},{"name":"eventIndex","type":"uint32"},{"name":"eventData","type":"cell"},{"name":"eventBlockNumber","type":"uint32"},{"name":"eventBlock","type":"uint256"}],"name":"voteData","type":"tuple"},{"name":"configuration","type":"address"},{"name":"chainId","type":"uint32"},{"name":"bridge","type":"address"}],"name":"_eventInitData","type":"tuple"},
+				{"components":[{"components":[{"name":"eventID","type":"uint32"},{"name":"eventBlockHash","type":"uint256"},{"name":"eventData","type":"cell"},{"name":"eventTransactionHash","type":"uint256"}],"name":"voteData","type":"tuple"},{"name":"configuration","type":"address"},{"name":"chainId","type":"uint32"},{"name":"bridge","type":"address"}],"name":"_eventInitData","type":"tuple"},
 				{"name":"_status","type":"uint8"},
 				{"name":"_confirms","type":"uint256[]"},
 				{"name":"_rejects","type":"uint256[]"},
@@ -128,7 +128,7 @@
 		}
 	],
 	"data": [
-		{"components":[{"components":[{"name":"eventTransaction","type":"uint256"},{"name":"eventIndex","type":"uint32"},{"name":"eventData","type":"cell"},{"name":"eventBlockNumber","type":"uint32"},{"name":"eventBlock","type":"uint256"}],"name":"voteData","type":"tuple"},{"name":"configuration","type":"address"},{"name":"chainId","type":"uint32"},{"name":"bridge","type":"address"}],"key":1,"name":"eventInitData","type":"tuple"}
+		{"components":[{"components":[{"name":"eventID","type":"uint32"},{"name":"eventBlockHash","type":"uint256"},{"name":"eventData","type":"cell"},{"name":"eventTransactionHash","type":"uint256"}],"name":"voteData","type":"tuple"},{"name":"configuration","type":"address"},{"name":"chainId","type":"uint32"},{"name":"bridge","type":"address"}],"key":1,"name":"eventInitData","type":"tuple"}
 	],
 	"events": [
 		{
@@ -165,6 +165,6 @@
 		{"name":"requiredVotes","type":"uint32"},
 		{"name":"confirms","type":"uint16"},
 		{"name":"rejects","type":"uint16"},
-		{"components":[{"components":[{"name":"eventTransaction","type":"uint256"},{"name":"eventIndex","type":"uint32"},{"name":"eventData","type":"cell"},{"name":"eventBlockNumber","type":"uint32"},{"name":"eventBlock","type":"uint256"}],"name":"voteData","type":"tuple"},{"name":"configuration","type":"address"},{"name":"chainId","type":"uint32"},{"name":"bridge","type":"address"}],"name":"eventInitData","type":"tuple"}
+		{"components":[{"components":[{"name":"eventID","type":"uint32"},{"name":"eventBlockHash","type":"uint256"},{"name":"eventData","type":"cell"},{"name":"eventTransactionHash","type":"uint256"}],"name":"voteData","type":"tuple"},{"name":"configuration","type":"address"},{"name":"chainId","type":"uint32"},{"name":"bridge","type":"address"}],"name":"eventInitData","type":"tuple"}
 	]
 }

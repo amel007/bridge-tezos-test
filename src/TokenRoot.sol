@@ -14,11 +14,8 @@ contract NftCollectionRoot is ITokenRoot {
 
     struct Callback {
         address sender_msg;
-        uint160 collection_addr;
-        uint256 token_id;
-        int8 wid;
-        uint256 owner_addr;
-        string metadata;
+        address addrRecipient;
+        uint128 amount;
     }
 
     mapping(uint128 => Callback) transferCallbacks;
@@ -42,19 +39,15 @@ contract NftCollectionRoot is ITokenRoot {
 
     function transferToken(
         address gasTo,
-        uint160 collection_addr,
-        uint256 token_id,
-        int8 wid,
-        uint256 owner_addr,
-        string metadata
+        address addrRecipient,
+        uint128 amount
     ) public override {
         require(msg.sender == _addrTransferTokenProxy);
 
         tvm.rawReserve(address(this).balance - msg.value, 2);
 
-        transferCallbacks[_idCallback] = Callback(gasTo, collection_addr, token_id, wid, owner_addr, metadata);
+        transferCallbacks[_idCallback] = Callback(gasTo, addrRecipient, amount);
 
-        uint128 sendIdCallbak = _idCallback;
         _idCallback++;
 
         gasTo.transfer({value: 0, flag: 128});

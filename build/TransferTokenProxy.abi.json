@@ -43,11 +43,9 @@
 		{
 			"name": "encodeTezosEventData",
 			"inputs": [
-				{"name":"collection_addr","type":"uint160"},
-				{"name":"token_id","type":"uint256"},
 				{"name":"wid","type":"int8"},
-				{"name":"owner_addr","type":"uint256"},
-				{"name":"metadata","type":"string"}
+				{"name":"recipient","type":"uint256"},
+				{"name":"amount","type":"uint128"}
 			],
 			"outputs": [
 				{"name":"data","type":"cell"}
@@ -59,11 +57,9 @@
 				{"name":"data","type":"cell"}
 			],
 			"outputs": [
-				{"name":"collection_addr","type":"uint160"},
-				{"name":"token_id","type":"uint256"},
 				{"name":"wid","type":"int8"},
-				{"name":"owner_addr","type":"uint256"},
-				{"name":"metadata","type":"string"}
+				{"name":"recipient","type":"uint256"},
+				{"name":"amount","type":"uint128"}
 			]
 		}
 	],

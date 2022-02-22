@@ -57,17 +57,18 @@ contract TezosEventConfiguration is ITezosEventConfiguration, TransferUtils {
         reserveBalance
     {
         require(msg.value >= _basicConfiguration.eventInitialBalance, ErrorCodes.TOO_LOW_DEPLOY_VALUE);
-        require(
-            eventVoteData.eventBlockNumber >= _networkConfiguration.startBlockNumber,
-            ErrorCodes.EVENT_BLOCK_NUMBER_LESS_THAN_START
-        );
+        //todo add check
+//        require(
+//            eventVoteData.eventBlockNumber >= _networkConfiguration.startBlockNumber,
+//            ErrorCodes.EVENT_BLOCK_NUMBER_LESS_THAN_START
+//        );
 
-        if (_networkConfiguration.endBlockNumber != 0) {
-            require(
-                eventVoteData.eventBlockNumber <= _networkConfiguration.endBlockNumber,
-                ErrorCodes.EVENT_BLOCK_NUMBER_HIGHER_THAN_END
-            );
-        }
+//        if (_networkConfiguration.endBlockNumber != 0) {
+//            require(
+//                eventVoteData.eventBlockNumber <= _networkConfiguration.endBlockNumber,
+//                ErrorCodes.EVENT_BLOCK_NUMBER_HIGHER_THAN_END
+//            );
+//        }
 
         ITezosEvent.TezosEventInitData eventInitData = buildEventInitData(eventVoteData);
 

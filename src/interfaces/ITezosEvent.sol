@@ -2,11 +2,10 @@ pragma ton-solidity >= 0.43.0;
 
 interface ITezosEvent {
     struct TezosEventVoteData {
-        uint eventTransaction;
-        uint32 eventIndex;
+        uint32 eventID;
+        uint eventBlockHash;
         TvmCell eventData;
-        uint32 eventBlockNumber;
-        uint eventBlock;
+        uint eventTransactionHash;
     }
 
     struct TezosEventInitData {
