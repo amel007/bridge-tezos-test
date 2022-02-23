@@ -17,12 +17,13 @@
 				{"name":"answerId","type":"uint32"}
 			],
 			"outputs": [
-				{"components":[{"components":[{"name":"eventID","type":"uint32"},{"name":"eventBlockHash","type":"uint256"},{"name":"eventData","type":"cell"},{"name":"eventTransactionHash","type":"uint256"}],"name":"voteData","type":"tuple"},{"name":"configuration","type":"address"},{"name":"chainId","type":"uint32"},{"name":"bridge","type":"address"}],"name":"value0","type":"tuple"}
+				{"components":[{"components":[{"name":"eventTransactionLt","type":"uint64"},{"name":"eventTimestamp","type":"uint32"},{"name":"eventData","type":"cell"}],"name":"voteData","type":"tuple"},{"name":"configuration","type":"address"},{"name":"bridge","type":"address"}],"name":"value0","type":"tuple"}
 			]
 		},
 		{
 			"name": "confirm",
 			"inputs": [
+				{"name":"signature","type":"bytes"},
 				{"name":"voteReceiver","type":"address"}
 			],
 			"outputs": [
@@ -42,11 +43,12 @@
 				{"name":"answerId","type":"uint32"}
 			],
 			"outputs": [
-				{"components":[{"components":[{"name":"eventID","type":"uint32"},{"name":"eventBlockHash","type":"uint256"},{"name":"eventData","type":"cell"},{"name":"eventTransactionHash","type":"uint256"}],"name":"voteData","type":"tuple"},{"name":"configuration","type":"address"},{"name":"chainId","type":"uint32"},{"name":"bridge","type":"address"}],"name":"_eventInitData","type":"tuple"},
+				{"components":[{"components":[{"name":"eventTransactionLt","type":"uint64"},{"name":"eventTimestamp","type":"uint32"},{"name":"eventData","type":"cell"}],"name":"voteData","type":"tuple"},{"name":"configuration","type":"address"},{"name":"bridge","type":"address"}],"name":"_eventInitData","type":"tuple"},
 				{"name":"_status","type":"uint8"},
 				{"name":"_confirms","type":"uint256[]"},
 				{"name":"_rejects","type":"uint256[]"},
 				{"name":"empty","type":"uint256[]"},
+				{"name":"_signatures","type":"bytes[]"},
 				{"name":"balance","type":"uint128"},
 				{"name":"_initializer","type":"address"},
 				{"name":"_requiredVotes","type":"uint32"}
@@ -127,16 +129,25 @@
 			"outputs": [
 				{"name":"rejects","type":"uint16"}
 			]
+		},
+		{
+			"name": "signatures",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"signatures","type":"map(uint256,bytes)"}
+			]
 		}
 	],
 	"data": [
-		{"components":[{"components":[{"name":"eventID","type":"uint32"},{"name":"eventBlockHash","type":"uint256"},{"name":"eventData","type":"cell"},{"name":"eventTransactionHash","type":"uint256"}],"name":"voteData","type":"tuple"},{"name":"configuration","type":"address"},{"name":"chainId","type":"uint32"},{"name":"bridge","type":"address"}],"key":1,"name":"eventInitData","type":"tuple"}
+		{"components":[{"components":[{"name":"eventTransactionLt","type":"uint64"},{"name":"eventTimestamp","type":"uint32"},{"name":"eventData","type":"cell"}],"name":"voteData","type":"tuple"},{"name":"configuration","type":"address"},{"name":"bridge","type":"address"}],"key":1,"name":"eventInitData","type":"tuple"}
 	],
 	"events": [
 		{
 			"name": "Confirm",
 			"inputs": [
-				{"name":"relay","type":"uint256"}
+				{"name":"relay","type":"uint256"},
+				{"name":"signature","type":"bytes"}
 			],
 			"outputs": [
 			]
@@ -167,6 +178,7 @@
 		{"name":"requiredVotes","type":"uint32"},
 		{"name":"confirms","type":"uint16"},
 		{"name":"rejects","type":"uint16"},
-		{"components":[{"components":[{"name":"eventID","type":"uint32"},{"name":"eventBlockHash","type":"uint256"},{"name":"eventData","type":"cell"},{"name":"eventTransactionHash","type":"uint256"}],"name":"voteData","type":"tuple"},{"name":"configuration","type":"address"},{"name":"chainId","type":"uint32"},{"name":"bridge","type":"address"}],"name":"eventInitData","type":"tuple"}
+		{"components":[{"components":[{"name":"eventTransactionLt","type":"uint64"},{"name":"eventTimestamp","type":"uint32"},{"name":"eventData","type":"cell"}],"name":"voteData","type":"tuple"},{"name":"configuration","type":"address"},{"name":"bridge","type":"address"}],"name":"eventInitData","type":"tuple"},
+		{"name":"signatures","type":"map(uint256,bytes)"}
 	]
 }

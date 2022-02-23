@@ -53,6 +53,17 @@ contract NftCollectionRoot is ITokenRoot {
         gasTo.transfer({value: 0, flag: 128});
     }
 
+    function burnToken(
+        uint128 amount,
+        TvmCell payload
+    ) public override {
+        require(msg.value >= 1.5 ton);
+
+        tvm.rawReserve(address(this).balance - msg.value, 2);
+
+        ITransferTokenProxy(_addrTransferTokenProxy).burnTokenCallback{value: 0, flag: 128}(amount, payload);
+    }
+
     function getInfo() public view returns (
         address owner,
         address addrTransferTokenProxy,

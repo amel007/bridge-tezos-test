@@ -4,8 +4,8 @@ const { Account } = require("@tonclient/appkit");
 const { BridgeContract } = require("../ton-packages/Bridge.js");
 const { TokenRootContract } = require("../ton-packages/TokenRoot.js");
 const { TransferTokenProxyContract } = require("../ton-packages/TransferTokenProxy.js");
-const { TezosTransferTokenEventContract } = require("../ton-packages/TezosTransferTokenEvent.js");
-const { TezosEventConfigurationContract } = require("../ton-packages/TezosEventConfiguration.js");
+const { EverscaleTransferTokenEventContract } = require("../ton-packages/EverscaleTransferTokenEvent.js");
+const { EverscaleEventConfigurationContract } = require("../ton-packages/EverscaleEventConfiguration.js");
 
 const { GiverContract } = require("../ton-packages/Giver.js");
 const { SetcodeMultisigWalletContract } = require("../ton-packages/SetcodeMultisigWallet.js");
@@ -13,7 +13,7 @@ const { SetcodeMultisigWalletContract } = require("../ton-packages/SetcodeMultis
 const bridgePathJson = '../keys/Bridge.json';
 const proxyPathJson = '../keys/TransferTokenProxy.json';
 const tokenRootPathJson = '../keys/TokenRoot.json';
-const tezosEventConfigurationPathJson = '../keys/TezosEventConfiguration.json';
+const everscaleEventConfigurationPathJson = '../keys/EverscaleEventConfiguration.json';
 
 const fs = require('fs');
 
@@ -63,15 +63,28 @@ async function main(client) {
 
   const ownerNTDAcc = new Account(SetcodeMultisigWalletContract, {address: ownerNTDAddress,signer: ownerNTDKeys,client,});
 
+  const contractPathJson = everscaleEventConfigurationPathJson;
+  const contractJsContract = EverscaleEventConfigurationContract;
 
-  const contractPathJson = proxyPathJson;
-  const contractJsContract = TransferTokenProxyContract;
+  const bridgeAddr = JSON.parse(fs.readFileSync(bridgePathJson,{encoding: "utf8"})).address;
+  const proxyAddr = JSON.parse(fs.readFileSync(proxyPathJson,{encoding: "utf8"})).address;
+
+  // eventABI: Buffer.from(JSON.stringify(TezosTransferTokenEventContract.abi)).toString('hex')
 
   const paramsConstructor = {
     owner:ownerNTDAddress,
-    addrTezosEventConfiguration: ownerNTDAddress,
-    addrTokenRoot: ownerNTDAddress,
-    addrEverscaleEventConfiguration: ownerNTDAddress
+    basicConfiguration: {
+      bridge: bridgeAddr,
+      eventABI: '2132',
+      eventInitialBalance: '1400000000',
+      eventCode: EverscaleTransferTokenEventContract.code
+    },
+    networkConfiguration: {
+      eventEmitter: proxyAddr,
+      proxy: 214421,
+      startTimestamp: 1,
+      endTimestamp: 0
+    }
   };
 
   const contractPhraseKeys = await generatePhraseKeys(client);

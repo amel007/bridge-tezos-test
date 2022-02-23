@@ -7,20 +7,23 @@ import './utils/CellEncoder.sol';
 import './libraries/Constants.sol';
 import './interfaces/ITransferTokenProxy.sol';
 import './interfaces/ITokenRoot.sol';
+import './interfaces/IEverscaleEventConfiguration.sol';
 
 contract TransferTokenProxy is ITransferTokenProxy, CellEncoder {
 
     address _owner;
     address _addrTokenRoot;
     address _addrTezosEventConfiguration;
+    address _addrEverscaleEventConfiguration;
 
-    event burnToken(uint160 collection_addr, uint256 token_id, uint160 owner_addr);
+    event Withdraw(int8 wid, uint256 recipient, uint128 amount);
 
-    constructor(address owner, address addrTezosEventConfiguration, address addrTokenRoot) public {
+    constructor(address owner, address addrTezosEventConfiguration, address addrEverscaleEventConfiguration, address addrTokenRoot) public {
         tvm.accept();
         _owner = owner;
         _addrTokenRoot = addrTokenRoot;
         _addrTezosEventConfiguration = addrTezosEventConfiguration;
+        _addrEverscaleEventConfiguration = addrEverscaleEventConfiguration;
     }
 
     modifier onlyOwner {
@@ -28,14 +31,15 @@ contract TransferTokenProxy is ITransferTokenProxy, CellEncoder {
         _;
     }
 
-    function setConfiguration(address addrTezosEventConfiguration, address addrTokenRoot) public onlyOwner {
+    function setConfiguration(address addrTezosEventConfiguration, address addrEverscaleEventConfiguration, address addrTokenRoot) public onlyOwner {
         _addrTokenRoot = addrTokenRoot;
         _addrTezosEventConfiguration = addrTezosEventConfiguration;
+        _addrEverscaleEventConfiguration = addrEverscaleEventConfiguration;
 
         msg.sender.transfer({value:0, flag:64});
     }
 
-    function transferToken(TvmCell data) public override {
+    function transferTokenCallback(TvmCell data) public override {
 
         require(msg.sender == _addrTezosEventConfiguration);
 
@@ -54,25 +58,36 @@ contract TransferTokenProxy is ITransferTokenProxy, CellEncoder {
         ITokenRoot(_addrTokenRoot).transferToken{value: 0, flag: 128}(msg.sender, addrRecipient, amount);
     }
 
+    function burnTokenCallback(uint128 amount, TvmCell payload) public override {
+
+        require(_addrTokenRoot == msg.sender);
+
+        tvm.rawReserve(address(this).balance - msg.value, 2);
+
+        (int8 wid, uint256 recipient) = decodePayload(payload);
+
+        emit Withdraw(wid, recipient, amount);
+
+        TvmCell eventData = encodeEverscaleEventData(
+            wid,
+            recipient,
+            amount
+        );
+
+        IEverscaleEvent.EverscaleEventVoteData eventVoteData = IEverscaleEvent.EverscaleEventVoteData(tx.timestamp, now, eventData);
+
+        IEverscaleEventConfiguration(_addrEverscaleEventConfiguration).deployEvent{
+            value: 0,
+            flag: 128
+        }(eventVoteData);
+    }
+
     function getInfo() public view returns (
         address owner,
         address addrTokenRoot,
-        address addrTezosEventConfiguration
+        address addrTezosEventConfiguration,
+        address addrEverscaleEventConfiguration
     ) {
-        return  (_owner, _addrTokenRoot, _addrTezosEventConfiguration);
+        return  (_owner, _addrTokenRoot, _addrTezosEventConfiguration, _addrEverscaleEventConfiguration);
     }
-
-//    function burnTokenCallback(uint256 idCollection, uint256 idToken, TvmCell payload, address gasTo) public override {
-//
-//        require(msg.sender == _addrTokenRoot);
-//
-//        tvm.rawReserve(address(this).balance - msg.value, 2);
-//
-//        uint160 collection_addr = payload.toSlice().decode(uint160);
-//
-//        emit burnToken(uint160(idCollection), idToken, collection_addr);
-//
-//        gasTo.transfer({value: 0, flag: 128});
-//    }
-
 }

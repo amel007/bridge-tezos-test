@@ -151,7 +151,7 @@ contract TezosEventConfiguration is ITezosEventConfiguration, TransferUtils {
             ErrorCodes.SENDER_NOT_EVENT_CONTRACT
         );
 
-        ITransferTokenProxy(_networkConfiguration.proxy).transferToken{
+        ITransferTokenProxy(_networkConfiguration.proxy).transferTokenCallback{
             flag: MsgFlag.ALL_NOT_RESERVED
         }(eventInitData.voteData.eventData);
     }

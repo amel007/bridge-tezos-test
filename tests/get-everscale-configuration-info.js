@@ -1,11 +1,11 @@
-const { TonClient, abiContract, signerKeys, signerNone} = require("@tonclient/core");
+const { TonClient, abiContract, signerKeys } = require("@tonclient/core");
 const { libNode } = require("@tonclient/lib-node");
 const { Account } = require("@tonclient/appkit");
 const { BridgeContract } = require("../ton-packages/Bridge.js");
 const { TokenRootContract } = require("../ton-packages/TokenRoot.js");
 const { TransferTokenProxyContract } = require("../ton-packages/TransferTokenProxy.js");
-const { TezosTransferTokenEventContract } = require("../ton-packages/TezosTransferTokenEvent.js");
-const { TezosEventConfigurationContract } = require("../ton-packages/TezosEventConfiguration.js");
+const { EverscaleTransferTokenEventContract } = require("../ton-packages/EverscaleTransferTokenEvent.js");
+const { EverscaleEventConfigurationContract } = require("../ton-packages/EverscaleEventConfiguration.js");
 
 const { GiverContract } = require("../ton-packages/Giver.js");
 const { SetcodeMultisigWalletContract } = require("../ton-packages/SetcodeMultisigWallet.js");
@@ -13,8 +13,9 @@ const { SetcodeMultisigWalletContract } = require("../ton-packages/SetcodeMultis
 const bridgePathJson = '../keys/Bridge.json';
 const proxyPathJson = '../keys/TransferTokenProxy.json';
 const tokenRootPathJson = '../keys/TokenRoot.json';
-const tezosEventConfigurationPathJson = '../keys/TezosEventConfiguration.json';
+const everscaleEventConfigurationPathJson = '../keys/EverscaleEventConfiguration.json';
 
+const hex2ascii = require('hex2ascii');
 const fs = require('fs');
 
 const dotenv = require('dotenv').config();
@@ -23,7 +24,6 @@ const hello = ["Hello localhost TON!","Hello dev net TON!","Hello main net TON!"
 const networkSelector = process.env.NET_SELECTOR;
 
 const zeroAddress = '0:0000000000000000000000000000000000000000000000000000000000000000';
-
 
 TonClient.useBinaryLibrary(libNode);
 
@@ -35,16 +35,8 @@ async function logEvents(params, response_type) {
 async function main(client) {
   let response;
 
-  const ownerNTDAddress = process.env.MAIN_GIVER_ADDRESS;
-  const ownerNTDKeys = signerKeys({
-    public: process.env.MAIN_GIVER_PUBLIC,
-    secret: process.env.MAIN_GIVER_SECRET
-  });
-
-  const ownerNTDAcc = new Account(SetcodeMultisigWalletContract, {address: ownerNTDAddress,signer: ownerNTDKeys,client,});
-
-  const contractPathJson = tezosEventConfigurationPathJson;
-  const contractJsContract = TezosEventConfigurationContract;
+  const contractPathJson = everscaleEventConfigurationPathJson;
+  const contractJsContract = EverscaleEventConfigurationContract;
 
 
   const contractJsonPrams = JSON.parse(fs.readFileSync(contractPathJson,{encoding: "utf8"}));
@@ -57,51 +49,16 @@ async function main(client) {
     client,
   });
 
-
-  const bridgeAddr = JSON.parse(fs.readFileSync(bridgePathJson,{encoding: "utf8"})).address;
-  const proxyAddr = JSON.parse(fs.readFileSync(proxyPathJson,{encoding: "utf8"})).address;
-
-
-  console.log("update configuration for tezos configuration:", contractAddr);
-
-
-  const { body } = (await client.abi.encode_message_body({
-    abi: contractAcc.abi,
-    call_set: {
-      function_name: "setConfiguration",
-      input: {
-        basicConfiguration: {
-          bridge: bridgeAddr,
-          eventABI: '2132',
-          eventInitialBalance: '1400000000',
-          eventCode: TezosTransferTokenEventContract.code
-        },
-        networkConfiguration: {
-          chainId: '1',
-          eventEmitter: '1241',
-          eventBlocksToConfirm: '12',
-          proxy: proxyAddr,
-          startBlockNumber: '1',
-          endBlockNumber: '111'
-        }
-      },
-    },
-    is_internal: true,
-    signer: signerNone(),
-  }));
-
-  // console.log(body);
-
-
-  response = await ownerNTDAcc.run("sendTransaction", {
-    dest: contractAddr,
-    value: 1500000000,
-    bounce: true,
-    flags: 3,
-    payload: body,
+  const ownerNTDAddress = process.env.MAIN_GIVER_ADDRESS;
+  const ownerNTDKeys = signerKeys({
+    public: process.env.MAIN_GIVER_PUBLIC,
+    secret: process.env.MAIN_GIVER_SECRET
   });
 
-  console.log("update configuration for tezos configuration:", contractAddr, response.decoded.output);
+  const ownerNTDAcc = new Account(SetcodeMultisigWalletContract, {address: ownerNTDAddress,signer: ownerNTDKeys,client,});
+
+  response = await contractAcc.runLocal("getDetails", {answerId:0});
+  console.log("Contract reacted to your getInfo:", response.decoded.output);
 
 }
 

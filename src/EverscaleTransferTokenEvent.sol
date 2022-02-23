@@ -1,17 +1,20 @@
-pragma ton-solidity >=0.43.0;
+pragma ton-solidity >= 0.39.0;
 pragma AbiHeader time;
 pragma AbiHeader expire;
 pragma AbiHeader pubkey;
 
 import "./base/BaseEvent.sol";
-import "./interfaces/ITezosEvent.sol";
-import './interfaces/ITezosEventConfiguration.sol';
+import "./interfaces/IEverscaleEvent.sol";
 
-contract TezosTransferTokenEvent is BaseEvent, ITezosEvent {
+import "./utils/ErrorCodes.sol";
 
-    TezosEventInitData static eventInitData;
+contract EverscaleTransferTokenEvent is BaseEvent, IEverscaleEvent {
 
-    event Confirm(uint relay);
+    EverscaleEventInitData static eventInitData;
+
+    mapping (uint => bytes) public signatures;
+
+    event Confirm(uint relay, bytes signature);
 
     constructor(
         address _initializer
@@ -24,24 +27,20 @@ contract TezosTransferTokenEvent is BaseEvent, ITezosEvent {
         loadRelays();
     }
 
-    function getEventInitData() public view responsible returns (TezosEventInitData) {
+    function getEventInitData() public view responsible returns (EverscaleEventInitData) {
         return {value: 0, flag: MsgFlag.REMAINING_GAS} eventInitData;
     }
 
     function onInit() override internal {
-//        notifyEventStatusChanged();
+        //        notifyEventStatusChanged();
     }
 
     function onConfirm() override internal {
-//        notifyEventStatusChanged();
-
-        ITezosEventConfiguration(eventInitData.configuration).eventConfirmedCallback{
-            flag: MsgFlag.ALL_NOT_RESERVED
-        }(eventInitData, initializer);
+        //        notifyEventStatusChanged();
     }
 
     function onReject() override internal {
-//        notifyEventStatusChanged();
+        //        notifyEventStatusChanged();
         transferAll(initializer);
     }
 
@@ -49,7 +48,8 @@ contract TezosTransferTokenEvent is BaseEvent, ITezosEvent {
         return eventInitData.bridge;
     }
 
-    function confirm(address voteReceiver) public eventPending {
+
+    function confirm(bytes signature, address voteReceiver) public {
         checkVoteReceiver(voteReceiver);
 
         uint relay = msg.pubkey();
@@ -59,9 +59,10 @@ contract TezosTransferTokenEvent is BaseEvent, ITezosEvent {
         tvm.accept();
 
         votes[relay] = Vote.Confirm;
-        confirms++;
+        signatures[relay] = signature;
 
-        emit Confirm(relay);
+        emit Confirm(relay, signature);
+        confirms++;
 
         // Event already confirmed
         if (status != Status.Pending) {
@@ -74,7 +75,8 @@ contract TezosTransferTokenEvent is BaseEvent, ITezosEvent {
         }
     }
 
-    function reject(address voteReceiver) public eventPending {
+
+    function reject(address voteReceiver) public {
         checkVoteReceiver(voteReceiver);
 
         uint relay = msg.pubkey();
@@ -84,9 +86,9 @@ contract TezosTransferTokenEvent is BaseEvent, ITezosEvent {
         tvm.accept();
 
         votes[relay] = Vote.Reject;
-        rejects++;
 
         emit Reject(relay);
+        rejects++;
 
         // Event already confirmed
         if (status != Status.Pending) {
@@ -99,23 +101,30 @@ contract TezosTransferTokenEvent is BaseEvent, ITezosEvent {
         }
     }
 
-
     function getDetails() public view responsible returns (
-        TezosEventInitData _eventInitData,
+        EverscaleEventInitData _eventInitData,
         Status _status,
         uint[] _confirms,
         uint[] _rejects,
         uint[] empty,
+        bytes[] _signatures,
         uint128 balance,
         address _initializer,
         uint32 _requiredVotes
     ) {
+        _confirms = getVoters(Vote.Confirm);
+
+        for (uint voter : _confirms) {
+            _signatures.push(signatures[voter]);
+        }
+
         return {value: 0, flag: MsgFlag.REMAINING_GAS} (
             eventInitData,
             status,
-            getVoters(Vote.Confirm),
+            _confirms,
             getVoters(Vote.Reject),
             getVoters(Vote.Empty),
+            _signatures,
             address(this).balance,
             initializer,
             requiredVotes

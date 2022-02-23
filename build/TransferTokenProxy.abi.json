@@ -8,6 +8,7 @@
 			"inputs": [
 				{"name":"owner","type":"address"},
 				{"name":"addrTezosEventConfiguration","type":"address"},
+				{"name":"addrEverscaleEventConfiguration","type":"address"},
 				{"name":"addrTokenRoot","type":"address"}
 			],
 			"outputs": [
@@ -17,15 +18,25 @@
 			"name": "setConfiguration",
 			"inputs": [
 				{"name":"addrTezosEventConfiguration","type":"address"},
+				{"name":"addrEverscaleEventConfiguration","type":"address"},
 				{"name":"addrTokenRoot","type":"address"}
 			],
 			"outputs": [
 			]
 		},
 		{
-			"name": "transferToken",
+			"name": "transferTokenCallback",
 			"inputs": [
 				{"name":"data","type":"cell"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "burnTokenCallback",
+			"inputs": [
+				{"name":"amount","type":"uint128"},
+				{"name":"payload","type":"cell"}
 			],
 			"outputs": [
 			]
@@ -37,7 +48,8 @@
 			"outputs": [
 				{"name":"owner","type":"address"},
 				{"name":"addrTokenRoot","type":"address"},
-				{"name":"addrTezosEventConfiguration","type":"address"}
+				{"name":"addrTezosEventConfiguration","type":"address"},
+				{"name":"addrEverscaleEventConfiguration","type":"address"}
 			]
 		},
 		{
@@ -61,17 +73,59 @@
 				{"name":"recipient","type":"uint256"},
 				{"name":"amount","type":"uint128"}
 			]
+		},
+		{
+			"name": "encodeEverscaleEventData",
+			"inputs": [
+				{"name":"wid","type":"int8"},
+				{"name":"recipient","type":"uint256"},
+				{"name":"amount","type":"uint128"}
+			],
+			"outputs": [
+				{"name":"data","type":"cell"}
+			]
+		},
+		{
+			"name": "decodeEverscaleEventData",
+			"inputs": [
+				{"name":"data","type":"cell"}
+			],
+			"outputs": [
+				{"name":"wid","type":"int8"},
+				{"name":"recipient","type":"uint256"},
+				{"name":"amount","type":"uint128"}
+			]
+		},
+		{
+			"name": "encodePayload",
+			"inputs": [
+				{"name":"wid","type":"int8"},
+				{"name":"recipient","type":"uint256"}
+			],
+			"outputs": [
+				{"name":"data","type":"cell"}
+			]
+		},
+		{
+			"name": "decodePayload",
+			"inputs": [
+				{"name":"data","type":"cell"}
+			],
+			"outputs": [
+				{"name":"wid","type":"int8"},
+				{"name":"recipient","type":"uint256"}
+			]
 		}
 	],
 	"data": [
 	],
 	"events": [
 		{
-			"name": "burnToken",
+			"name": "Withdraw",
 			"inputs": [
-				{"name":"collection_addr","type":"uint160"},
-				{"name":"token_id","type":"uint256"},
-				{"name":"owner_addr","type":"uint160"}
+				{"name":"wid","type":"int8"},
+				{"name":"recipient","type":"uint256"},
+				{"name":"amount","type":"uint128"}
 			],
 			"outputs": [
 			]
@@ -83,6 +137,7 @@
 		{"name":"_constructorFlag","type":"bool"},
 		{"name":"_owner","type":"address"},
 		{"name":"_addrTokenRoot","type":"address"},
-		{"name":"_addrTezosEventConfiguration","type":"address"}
+		{"name":"_addrTezosEventConfiguration","type":"address"},
+		{"name":"_addrEverscaleEventConfiguration","type":"address"}
 	]
 }

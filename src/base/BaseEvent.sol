@@ -58,6 +58,14 @@ abstract contract BaseEvent is IBaseEvent, TransferUtils {
         }();
     }
 
+    function checkVoteReceiver(address voteReceiver) internal {
+        require(voteReceiver == address(this), ErrorCodes.WRONG_VOTE_RECEIVER);
+    }
+
+    function checkVoteKey(uint key) internal {
+        require(votes[key] == Vote.Empty, ErrorCodes.KEY_VOTE_NOT_EMPTY);
+    }
+
     function receiveRelayKeys(uint[] keys) public onlyRelayAddress eventInitializing {
         requiredVotes = uint16(keys.length * 2 / 3) + 1;
 

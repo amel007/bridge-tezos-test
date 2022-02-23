@@ -14,6 +14,7 @@ const bridgePathJson = '../keys/Bridge.json';
 const proxyPathJson = '../keys/TransferTokenProxy.json';
 const tokenRootPathJson = '../keys/TokenRoot.json';
 const tezosEventConfigurationPathJson = '../keys/TezosEventConfiguration.json';
+const everscaleEventConfigurationPathJson = '../keys/EverscaleEventConfiguration.json';
 
 const fs = require('fs');
 
@@ -63,6 +64,7 @@ async function main(client) {
   });
 
   const tezosEventConfigurationAddr = JSON.parse(fs.readFileSync(tezosEventConfigurationPathJson,{encoding: "utf8"})).address;
+  const everscaleEventConfigurationAddr = JSON.parse(fs.readFileSync(everscaleEventConfigurationPathJson,{encoding: "utf8"})).address;
 
   console.log("set configuration for proxy :", proxyAddr);
 
@@ -72,7 +74,8 @@ async function main(client) {
       function_name: "setConfiguration",
       input: {
         addrTezosEventConfiguration: tezosEventConfigurationAddr,
-        addrTokenRoot: tokeRootAddr
+        addrTokenRoot: tokeRootAddr,
+        addrEverscaleEventConfiguration: everscaleEventConfigurationAddr
       },
     },
     is_internal: true,

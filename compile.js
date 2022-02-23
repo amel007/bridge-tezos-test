@@ -1,7 +1,7 @@
 const fs = require('fs');
 const { exec } = require("child_process");
 
-let nameArr = ["TokenRoot", "TransferTokenProxy", "TezosEventConfiguration", "Bridge", "TezosTransferTokenEvent"];
+let nameArr = ["TokenRoot", "TransferTokenProxy", "TezosEventConfiguration", "Bridge", "TezosTransferTokenEvent", "EverscaleEventConfiguration", "EverscaleTransferTokenEvent"];
 
 for (const item of nameArr) {
   exec(`tondev sol compile ./src/${item}.sol -o ./build/`, (error, stdout, stderr) => {

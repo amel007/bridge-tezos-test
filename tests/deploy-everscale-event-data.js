@@ -4,8 +4,8 @@ const { Account } = require("@tonclient/appkit");
 const { BridgeContract } = require("../ton-packages/Bridge.js");
 const { TokenRootContract } = require("../ton-packages/TokenRoot.js");
 const { TransferTokenProxyContract } = require("../ton-packages/TransferTokenProxy.js");
-const { TezosTransferTokenEventContract } = require("../ton-packages/TezosTransferTokenEvent.js");
-const { TezosEventConfigurationContract } = require("../ton-packages/TezosEventConfiguration.js");
+const { EverscaleTransferTokenEventContract } = require("../ton-packages/EverscaleTransferTokenEvent.js");
+const { EverscaleEventConfigurationContract } = require("../ton-packages/EverscaleEventConfiguration.js");
 
 const { GiverContract } = require("../ton-packages/Giver.js");
 const { SetcodeMultisigWalletContract } = require("../ton-packages/SetcodeMultisigWallet.js");
@@ -13,7 +13,6 @@ const { SetcodeMultisigWalletContract } = require("../ton-packages/SetcodeMultis
 const bridgePathJson = '../keys/Bridge.json';
 const proxyPathJson = '../keys/TransferTokenProxy.json';
 const tokenRootPathJson = '../keys/TokenRoot.json';
-const tezosEventConfigurationPathJson = '../keys/TezosEventConfiguration.json';
 const everscaleEventConfigurationPathJson = '../keys/EverscaleEventConfiguration.json';
 
 const fs = require('fs');
@@ -24,6 +23,7 @@ const hello = ["Hello localhost TON!","Hello dev net TON!","Hello main net TON!"
 const networkSelector = process.env.NET_SELECTOR;
 
 const zeroAddress = '0:0000000000000000000000000000000000000000000000000000000000000000';
+
 
 TonClient.useBinaryLibrary(libNode);
 
@@ -43,36 +43,56 @@ async function main(client) {
 
   const ownerNTDAcc = new Account(SetcodeMultisigWalletContract, {address: ownerNTDAddress,signer: ownerNTDKeys,client,});
 
-  const tezosEventConfigurationAddr = JSON.parse(fs.readFileSync(tezosEventConfigurationPathJson,{encoding: "utf8"})).address;
-  const everscaleEventConfigurationAddr = JSON.parse(fs.readFileSync(everscaleEventConfigurationPathJson,{encoding: "utf8"})).address;
+  const everscaleEventConfigurationJsonPrams = JSON.parse(fs.readFileSync(everscaleEventConfigurationPathJson,{encoding: "utf8"}));
+  const everscaleEventConfigurationAddr = everscaleEventConfigurationJsonPrams.address;
+  // const contractKeys = contractJsonPrams.keys;
 
-  const configurationForBridge = [
-    tezosEventConfigurationAddr,
-    everscaleEventConfigurationAddr
-  ];
-
-  console.log(configurationForBridge);
-
-
-  const bridgeAddr = JSON.parse(fs.readFileSync(bridgePathJson,{encoding: "utf8"})).address;
-  // const bridgeKeys = JSON.parse(fs.readFileSync(bridgePathJson,{encoding: "utf8"})).keys;
-
-  const bridgeAcc = new Account(BridgeContract, {
-    address:bridgeAddr,
-    // signer: bridgeKeys,
+  const everscaleEventCOnfigurationAcc = new Account(EverscaleEventConfigurationContract, {
+    address:everscaleEventConfigurationAddr,
     client,
   });
 
 
-  console.log("set configuration for bridge:", bridgeAddr);
+  const proxyJsonPrams = JSON.parse(fs.readFileSync(proxyPathJson,{encoding: "utf8"}));
+  const proxyAddr = proxyJsonPrams.address;
+  // const contractKeys = contractJsonPrams.keys;
 
+  const proxyAcc = new Account(TransferTokenProxyContract, {
+    address:proxyAddr,
+    // signer: bridgeKeys,
+    client,
+  });
+
+  const tokenJsonPrams = JSON.parse(fs.readFileSync(tokenRootPathJson,{encoding: "utf8"}));
+  const tokenAddr = tokenJsonPrams.address;
+  // const contractKeys = contractJsonPrams.keys;
+
+  const tokenAcc = new Account(TokenRootContract, {
+    address:tokenAddr,
+    // signer: bridgeKeys,
+    client,
+  });
+
+  console.log("burn token for deploy event data");
+
+  const paramsBurn = {
+    wid: 2,
+    recipient: '0x'+'b6ad8175fd6870e93fe44908c01831269065f8890ad119c5917bad088e192c43'
+  }
+  const amountToken = 222;
+
+  response = await proxyAcc.runLocal("encodePayload", paramsBurn);
+  console.log("Contract reacted to your encodePayload:", response.decoded.output);
+
+  const payloadToken = response.decoded.output.data;
 
   const { body } = (await client.abi.encode_message_body({
-    abi: bridgeAcc.abi,
+    abi: tokenAcc.abi,
     call_set: {
-      function_name: "setConfigurations",
+      function_name: "burnToken",
       input: {
-        configurations: configurationForBridge,
+        amount: amountToken,
+        payload: payloadToken
       },
     },
     is_internal: true,
@@ -83,14 +103,14 @@ async function main(client) {
 
 
   response = await ownerNTDAcc.run("sendTransaction", {
-    dest: bridgeAddr,
-    value: 1500000000,
+    dest: tokenAddr,
+    value: 1600000000,
     bounce: true,
     flags: 3,
     payload: body,
   });
 
-  console.log("configuration for bridge:", bridgeAddr, response.decoded.output);
+  console.log("send burn token for token root:", tokenAddr, response.decoded.output);
 }
 
 (async () => {

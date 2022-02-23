@@ -55,7 +55,10 @@ async function main(client) {
       client,
     });
 
-    response = await configurationAcc.runLocal("getDetails", {answerId:0});
+    // response = await configurationAcc.runLocal("getDetails", {answerId:0});
+    // console.log("Contract reacted to your getInfo:", response.decoded.output);
+
+    response = await configurationAcc.runLocal("getType", {answerId:0});
     console.log("Contract reacted to your getInfo:", response.decoded.output);
   }
 

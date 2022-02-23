@@ -1,11 +1,11 @@
-const { TonClient, abiContract, signerKeys, signerNone } = require("@tonclient/core");
+const { TonClient, abiContract, signerKeys, signerNone} = require("@tonclient/core");
 const { libNode } = require("@tonclient/lib-node");
 const { Account } = require("@tonclient/appkit");
 const { BridgeContract } = require("../ton-packages/Bridge.js");
 const { TokenRootContract } = require("../ton-packages/TokenRoot.js");
 const { TransferTokenProxyContract } = require("../ton-packages/TransferTokenProxy.js");
-const { TezosTransferTokenEventContract } = require("../ton-packages/TezosTransferTokenEvent.js");
-const { TezosEventConfigurationContract } = require("../ton-packages/TezosEventConfiguration.js");
+const { EverscaleTransferTokenEventContract } = require("../ton-packages/EverscaleTransferTokenEvent.js");
+const { EverscaleEventConfigurationContract } = require("../ton-packages/EverscaleEventConfiguration.js");
 
 const { GiverContract } = require("../ton-packages/Giver.js");
 const { SetcodeMultisigWalletContract } = require("../ton-packages/SetcodeMultisigWallet.js");
@@ -13,7 +13,6 @@ const { SetcodeMultisigWalletContract } = require("../ton-packages/SetcodeMultis
 const bridgePathJson = '../keys/Bridge.json';
 const proxyPathJson = '../keys/TransferTokenProxy.json';
 const tokenRootPathJson = '../keys/TokenRoot.json';
-const tezosEventConfigurationPathJson = '../keys/TezosEventConfiguration.json';
 const everscaleEventConfigurationPathJson = '../keys/EverscaleEventConfiguration.json';
 
 const fs = require('fs');
@@ -24,6 +23,7 @@ const hello = ["Hello localhost TON!","Hello dev net TON!","Hello main net TON!"
 const networkSelector = process.env.NET_SELECTOR;
 
 const zeroAddress = '0:0000000000000000000000000000000000000000000000000000000000000000';
+
 
 TonClient.useBinaryLibrary(libNode);
 
@@ -43,54 +43,64 @@ async function main(client) {
 
   const ownerNTDAcc = new Account(SetcodeMultisigWalletContract, {address: ownerNTDAddress,signer: ownerNTDKeys,client,});
 
-  const tezosEventConfigurationAddr = JSON.parse(fs.readFileSync(tezosEventConfigurationPathJson,{encoding: "utf8"})).address;
-  const everscaleEventConfigurationAddr = JSON.parse(fs.readFileSync(everscaleEventConfigurationPathJson,{encoding: "utf8"})).address;
-
-  const configurationForBridge = [
-    tezosEventConfigurationAddr,
-    everscaleEventConfigurationAddr
-  ];
-
-  console.log(configurationForBridge);
+  const contractPathJson = everscaleEventConfigurationPathJson;
+  const contractJsContract = EverscaleEventConfigurationContract;
 
 
-  const bridgeAddr = JSON.parse(fs.readFileSync(bridgePathJson,{encoding: "utf8"})).address;
-  // const bridgeKeys = JSON.parse(fs.readFileSync(bridgePathJson,{encoding: "utf8"})).keys;
+  const contractJsonPrams = JSON.parse(fs.readFileSync(contractPathJson,{encoding: "utf8"}));
+  const contractAddr = contractJsonPrams.address;
+  // const contractKeys = contractJsonPrams.keys;
 
-  const bridgeAcc = new Account(BridgeContract, {
-    address:bridgeAddr,
+  const contractAcc = new Account(contractJsContract, {
+    address:contractAddr,
     // signer: bridgeKeys,
     client,
   });
 
 
-  console.log("set configuration for bridge:", bridgeAddr);
+  const bridgeAddr = JSON.parse(fs.readFileSync(bridgePathJson,{encoding: "utf8"})).address;
+  const proxyAddr = JSON.parse(fs.readFileSync(proxyPathJson,{encoding: "utf8"})).address;
+
+
+  console.log("update configuration for everscale configuration:", contractAddr);
 
 
   const { body } = (await client.abi.encode_message_body({
-    abi: bridgeAcc.abi,
+    abi: contractAcc.abi,
     call_set: {
-      function_name: "setConfigurations",
+      function_name: "setConfiguration",
       input: {
-        configurations: configurationForBridge,
+        basicConfiguration: {
+          bridge: bridgeAddr,
+          eventABI: '2132',
+          eventInitialBalance: '1400000000',
+          eventCode: EverscaleTransferTokenEventContract.code
+        },
+        networkConfiguration: {
+          eventEmitter: proxyAddr,
+          proxy: 214421,
+          startTimestamp: 1,
+          endTimestamp: 0
+        }
       },
     },
     is_internal: true,
     signer: signerNone(),
   }));
 
-  console.log(body);
+  // console.log(body);
 
 
   response = await ownerNTDAcc.run("sendTransaction", {
-    dest: bridgeAddr,
+    dest: contractAddr,
     value: 1500000000,
     bounce: true,
     flags: 3,
     payload: body,
   });
 
-  console.log("configuration for bridge:", bridgeAddr, response.decoded.output);
+  console.log("update configuration for everscale configuration:", contractAddr, response.decoded.output);
+
 }
 
 (async () => {

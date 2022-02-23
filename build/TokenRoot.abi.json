@@ -31,6 +31,15 @@
 			]
 		},
 		{
+			"name": "burnToken",
+			"inputs": [
+				{"name":"amount","type":"uint128"},
+				{"name":"payload","type":"cell"}
+			],
+			"outputs": [
+			]
+		},
+		{
 			"name": "getInfo",
 			"inputs": [
 			],
