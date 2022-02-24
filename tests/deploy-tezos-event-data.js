@@ -78,9 +78,9 @@ async function main(client) {
 
   const eventVoteData = {
     eventID: 222,
-    eventBlockHash: 322,
+    eventBlockHash: '27545f0bcead',
     eventData: eventData,
-    eventTransactionHash: 20,
+    eventTransactionHash: 'b0319f4cd8',
   };
 
   const { body } = (await client.abi.encode_message_body({

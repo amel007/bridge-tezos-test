@@ -4,8 +4,8 @@ const { Account } = require("@tonclient/appkit");
 const { BridgeContract } = require("../ton-packages/Bridge.js");
 const { TokenRootContract } = require("../ton-packages/TokenRoot.js");
 const { TransferTokenProxyContract } = require("../ton-packages/TransferTokenProxy.js");
-const { TezosTransferTokenEventContract } = require("../ton-packages/TezosTransferTokenEvent.js");
-const { TezosEventConfigurationContract } = require("../ton-packages/TezosEventConfiguration.js");
+const { EverscaleTransferTokenEventContract } = require("../ton-packages/EverscaleTransferTokenEvent.js");
+const { EverscaleEventConfigurationContract } = require("../ton-packages/EverscaleEventConfiguration.js");
 
 const { GiverContract } = require("../ton-packages/Giver.js");
 const { SetcodeMultisigWalletContract } = require("../ton-packages/SetcodeMultisigWallet.js");
@@ -13,6 +13,7 @@ const { SetcodeMultisigWalletContract } = require("../ton-packages/SetcodeMultis
 const bridgePathJson = '../keys/Bridge.json';
 const proxyPathJson = '../keys/TransferTokenProxy.json';
 const tokenRootPathJson = '../keys/TokenRoot.json';
+const everscaleEventConfigurationPathJson = '../keys/EverscaleEventConfiguration.json';
 const tezosEventConfigurationPathJson = '../keys/TezosEventConfiguration.json';
 
 const fs = require('fs');
@@ -43,12 +44,12 @@ async function main(client) {
 
   const ownerNTDAcc = new Account(SetcodeMultisigWalletContract, {address: ownerNTDAddress,signer: ownerNTDKeys,client,});
 
-  const tezosEventConfigurationJsonPrams = JSON.parse(fs.readFileSync(tezosEventConfigurationPathJson,{encoding: "utf8"}));
-  const tezosEventConfigurationAddr = tezosEventConfigurationJsonPrams.address;
+  const everscaleEventConfigurationJsonPrams = JSON.parse(fs.readFileSync(everscaleEventConfigurationPathJson,{encoding: "utf8"}));
+  const everscaleEventConfigurationAddr = everscaleEventConfigurationJsonPrams.address;
   // const contractKeys = contractJsonPrams.keys;
 
-  const tezosEventCOnfigurationAcc = new Account(TezosEventConfigurationContract, {
-    address:tezosEventConfigurationAddr,
+  const everscaleEventCOnfigurationAcc = new Account(EverscaleEventConfigurationContract, {
+    address:everscaleEventConfigurationAddr,
     client,
   });
 
@@ -66,36 +67,50 @@ async function main(client) {
   console.log("get event data info");
 
   const paramsEvent = {
-    wid: 0,
+    wid: 2,
     recipient: '0x'+'b6ad8175fd6870e93fe44908c01831269065f8890ad119c5917bad088e192c43',
-    amount: 100
+    amount: 222
   }
 
-  response = await proxyAcc.runLocal("encodeTezosEventData", paramsEvent);
-  console.log("Contract reacted to your encodeTezosEventData:", response.decoded.output);
+  response = await proxyAcc.runLocal("encodeEverscaleEventData", paramsEvent);
+  console.log("Contract reacted to your encodeEverscaleEventData:", response.decoded.output);
 
   const eventData = response.decoded.output.data;
 
   const eventVoteData = {
-    eventID: 222,
-    eventBlockHash: '27545f0bcead',
-    eventData: eventData,
-    eventTransactionHash: 'b0319f4cd8',
+    eventTransactionLt: '0x2061a9483c5',
+    eventTimestamp: 1645621724,
+    eventData: eventData
   };
 
-  response = await tezosEventCOnfigurationAcc.runLocal("deriveEventAddress", {eventVoteData:eventVoteData, answerId:0});
+  response = await everscaleEventCOnfigurationAcc.runLocal("deriveEventAddress", {eventVoteData:eventVoteData, answerId:0});
   console.log("Contract reacted to your deriveEventAddress:", response.decoded.output);
 
   const eventAddr = response.decoded.output.eventContract;
 
-  const eventAcc = new Account(TezosTransferTokenEventContract, {
-    address:eventAddr,
-    // signer: bridgeKeys,
-    client,
-  });
+  console.log('confirm event:', eventAddr);
 
-  response = await eventAcc.runLocal("getDetails", {answerId:0});
-  console.log("Contract reacted to your getDetails:", response.decoded.output);
+  const tokeRootKeys = JSON.parse(fs.readFileSync(tokenRootPathJson,{encoding: "utf8"})).keys;
+  const proxyKeys = JSON.parse(fs.readFileSync(proxyPathJson,{encoding: "utf8"})).keys;
+  const tezosEventConfigurationKeys = JSON.parse(fs.readFileSync(tezosEventConfigurationPathJson,{encoding: "utf8"})).keys;
+
+  const relayKeysForConfirm = [
+    tokeRootKeys,
+    proxyKeys,
+    tezosEventConfigurationKeys
+  ];
+
+  for (const relayKeys of relayKeysForConfirm) {
+    const eventAcc = new Account(EverscaleTransferTokenEventContract, {
+      address:eventAddr,
+      signer: relayKeys,
+      client,
+    });
+
+    response = await eventAcc.run("confirm", {voteReceiver: eventAddr, signature: '9a9f5a08976812'});
+    console.log("Contract reacted to your confirm:", response.decoded.output);
+
+  }
 
 }
 

@@ -66,19 +66,19 @@ async function main(client) {
   console.log("get event data info");
 
   const paramsEvent = {
-    wid: 0,
+    wid: 2,
     recipient: '0x'+'b6ad8175fd6870e93fe44908c01831269065f8890ad119c5917bad088e192c43',
     amount: 222
   }
 
-  response = await proxyAcc.runLocal("decodeEverscaleEventData", paramsEvent);
-  console.log("Contract reacted to your decodeEverscaleEventData:", response.decoded.output);
+  response = await proxyAcc.runLocal("encodeEverscaleEventData", paramsEvent);
+  console.log("Contract reacted to your encodeEverscaleEventData:", response.decoded.output);
 
   const eventData = response.decoded.output.data;
 
   const eventVoteData = {
-    eventTransactionLt: 222,
-    eventTimestamp: 322,
+    eventTransactionLt: '0x2061a9483c5',
+    eventTimestamp: 1645621724,
     eventData: eventData
   };
 
